@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>专四刷题 · TEM-4 Practice</title>
+  <style>
+    :root {
+      --primary: #4f46e5; --primary-light: #818cf8;
+      --success: #10b981; --error: #ef4444; --warning: #f59e0b;
+      --bg: #f1f5f9; --card: #ffffff; --text: #1e293b;
+      --text-secondary: #64748b; --border: #e2e8f0;
+      --shadow: 0 1px 3px rgba(0,0,0,0.06); --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      background: var(--bg); color: var(--text); line-height: 1.7; min-height: 100vh;
+    }
+
+    /* ===== Header ===== */
+    .header {
+      background: linear-gradient(135deg, #1e1b4b, #3730a3); color: white;
+      padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 200;
+    }
+    .header h1 { font-size: 20px; font-weight: 700; }
+    .header-stats { display: flex; gap: 12px; font-size: 13px; }
+    .header-stats span { background: rgba(255,255,255,0.12); padding: 4px 12px; border-radius: 20px; }
+    .header-stats .vocab-badge { background: rgba(251,191,36,0.3); cursor: pointer; }
+
+    /* ===== Layout ===== */
+    .container { max-width: 920px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ===== Year Selector ===== */
+    .year-selector { display: flex; gap: 8px; margin-bottom: 12px; }
+    .year-btn {
+      padding: 8px 20px; border: 2px solid var(--border); border-radius: 20px;
+      cursor: pointer; font-weight: 600; font-size: 14px; background: var(--card);
+      transition: all 0.2s;
+    }
+    .year-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .year-btn:hover:not(.active) { border-color: var(--primary-light); }
+
+    /* ===== Mode Toggle ===== */
+    .mode-toggle {
+      display: flex; gap: 8px; margin-bottom: 12px; align-items: center;
+      background: var(--card); padding: 6px; border-radius: 12px; box-shadow: var(--shadow);
+    }
+    .mode-btn {
+      flex: 1; padding: 8px 14px; border: none; border-radius: 8px;
+      cursor: pointer; font-size: 13px; font-weight: 600; background: transparent;
+      color: var(--text-secondary); transition: all 0.2s;
+    }
+    .mode-btn.active { background: var(--primary); color: white; }
+    .mode-btn:hover:not(.active) { background: #f1f5f9; }
+
+    /* ===== Nav Tabs ===== */
+    .nav-tabs {
+      display: flex; gap: 6px; margin-bottom: 20px; background: var(--card);
+      padding: 5px; border-radius: 12px; box-shadow: var(--shadow); overflow-x: auto;
+    }
+    .nav-tab {
+      flex: 1; min-width: 70px; padding: 9px 12px; border: none; background: transparent;
+      border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+      color: var(--text-secondary); white-space: nowrap; transition: all 0.2s;
+    }
+    .nav-tab.active { background: var(--primary); color: white; }
+    .nav-tab:hover:not(.active) { background: #f1f5f9; }
+
+    /* ===== Card ===== */
+    .card {
+      background: var(--card); border-radius: 14px; padding: 24px;
+      box-shadow: var(--shadow); margin-bottom: 16px;
+    }
+    .card-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .card-title .icon { font-size: 20px; }
+
+    /* ===== Question ===== */
+    .q-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 8px; background: var(--primary);
+      color: white; font-weight: 700; font-size: 13px; margin-right: 8px; flex-shrink: 0;
+    }
+    .q-num.correct { background: var(--success); }
+    .q-num.wrong { background: var(--error); }
+
+    .q-stem {
+      font-size: 15px; margin-bottom: 14px; line-height: 1.8; display: flex; align-items: flex-start;
+    }
+    .q-stem span { cursor: pointer; }
+    .q-stem span.word-clickable:hover { background: #fef3c7; border-radius: 3px; }
+    .q-stem span.word-highlight { background: #fef3c7; border-radius: 3px; padding: 0 2px; }
+
+    /* ===== Options ===== */
+    .options-list { display: flex; flex-direction: column; gap: 6px; }
+    .opt-btn {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      border: 2px solid var(--border); border-radius: 10px; cursor: pointer;
+      transition: all 0.15s; background: white; font-size: 14px; text-align: left; width: 100%;
+    }
+    .opt-btn:hover:not(.disabled) { border-color: var(--primary-light); background: #faf5ff; }
+    .opt-btn.selected { border-color: var(--primary); background: #ede9fe; }
+    .opt-btn.correct { border-color: var(--success); background: #d1fae5; }
+    .opt-btn.wrong { border-color: var(--error); background: #fee2e2; }
+    .opt-btn.disabled { cursor: default; opacity: 0.7; }
+    .opt-letter {
+      width: 28px; height: 28px; border-radius: 7px; background: #f1f5f9;
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; flex-shrink: 0;
+    }
+    .opt-btn.selected .opt-letter { background: var(--primary); color: white; }
+    .opt-btn.correct .opt-letter { background: var(--success); color: white; }
+    .opt-btn.wrong .opt-letter { background: var(--error); color: white; }
+
+    /* ===== Explanation ===== */
+    .explanation {
+      margin-top: 12px; padding: 14px; background: #fffbeb;
+      border-left: 4px solid var(--warning); border-radius: 8px;
+      font-size: 13px; color: #92400e; line-height: 1.7; display: none;
+    }
+    .explanation.show { display: block; }
+    .exp-tag {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-size: 12px; font-weight: 600; margin-bottom: 6px;
+    }
+    .exp-tag.correct { background: #d1fae5; color: #065f46; }
+    .exp-tag.wrong { background: #fee2e2; color: #991b1b; }
+
+    /* ===== Cloze ===== */
+    .cloze-passage { font-size: 15px; line-height: 2.2; padding: 20px; background: #f8fafc; border-radius: 12px; margin-bottom: 16px; }
+    .cloze-blank {
+      display: inline-block; min-width: 70px; padding: 2px 10px;
+      border-bottom: 2px dashed var(--primary); margin: 0 2px;
+      color: var(--primary); font-weight: 600; cursor: pointer;
+    }
+    .cloze-blank.filled { border-bottom-color: var(--success); color: var(--success); }
+    .cloze-blank.wrong-fill { border-bottom-color: var(--error); color: var(--error); }
+    .cloze-blank.selected { background: #ede9fe; border-bottom-color: #7c3aed; color: #7c3aed; border-radius: 4px; }
+    .word-bank { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+    .word-chip {
+      padding: 6px 14px; border: 2px solid var(--border); border-radius: 18px;
+      cursor: pointer; font-size: 13px; font-weight: 500; background: white; transition: all 0.15s;
+    }
+    .word-chip:hover { border-color: var(--primary-light); }
+    .word-chip.active { border-color: var(--primary); background: #ede9fe; }
+    .word-chip.used { opacity: 0.3; pointer-events: none; }
+
+    /* ===== Buttons ===== */
+    .btn {
+      padding: 9px 20px; border: none; border-radius: 8px; font-size: 14px;
+      font-weight: 600; cursor: pointer; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-outline { background: white; border: 2px solid var(--border); color: var(--text); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-danger { background: var(--error); color: white; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+    .actions { display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap; }
+
+    /* ===== Vocabulary Popup ===== */
+    .vocab-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); z-index: 500; display: flex;
+      align-items: center; justify-content: center; animation: fadeIn 0.15s;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .vocab-card {
+      background: white; border-radius: 16px; padding: 24px; max-width: 420px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2); position: relative; animation: slideUp 0.2s;
+    }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .vocab-card .close-btn {
+      position: absolute; top: 12px; right: 14px; width: 28px; height: 28px;
+      border-radius: 50%; border: none; background: #f1f5f9; cursor: pointer;
+      font-size: 16px; display: flex; align-items: center; justify-content: center; color: var(--text-secondary);
+    }
+    .vocab-card .close-btn:hover { background: #e2e8f0; }
+    .vocab-word { font-size: 24px; font-weight: 700; color: var(--primary); margin-bottom: 4px; }
+    .vocab-phonetic { font-size: 15px; color: var(--text-secondary); margin-bottom: 12px; }
+    .vocab-meaning { font-size: 15px; margin-bottom: 8px; line-height: 1.7; }
+    .vocab-example { font-size: 13px; color: var(--text-secondary); font-style: italic; background: #f8fafc; padding: 8px 12px; border-radius: 8px; }
+    .vocab-actions { display: flex; gap: 8px; margin-top: 14px; }
+    .btn-add-vocab { background: #fef3c7; color: #92400e; }
+    .btn-add-vocab:hover { background: #fde68a; }
+    .btn-add-vocab.added { background: #d1fae5; color: #065f46; }
+
+    /* ===== Word Hover Tooltip ===== */
+    .word-clickable {
+      cursor: pointer; position: relative; display: inline;
+      border-bottom: 1px dotted var(--primary-light); transition: background 0.15s;
+    }
+    .word-clickable:hover { background: #ede9fe; border-radius: 3px; }
+    .word-tooltip {
+      position: fixed; z-index: 600; background: white; border-radius: 12px;
+      padding: 12px 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      max-width: 320px; pointer-events: none; animation: tooltipIn 0.15s ease;
+      border: 1px solid var(--border); font-size: 13px;
+    }
+    @keyframes tooltipIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .word-tooltip .wt-word { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .word-tooltip .wt-phonetic { font-size: 13px; color: var(--text-secondary); margin: 4px 0 8px; }
+    .word-tooltip .wt-meaning { font-size: 14px; color: var(--text); line-height: 1.6; }
+    .word-tooltip .wt-example { font-size: 12px; color: var(--text-secondary); font-style: italic; margin-top: 6px; }
+    .word-tooltip .wt-not-found { font-size: 13px; color: var(--warning); }
+
+    /* ===== Vocab Book ===== */
+    .vocab-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .vocab-item:hover { background: #f1f5f9; }
+    .vocab-item .v-word { font-size: 16px; font-weight: 700; color: var(--primary); }
+    .vocab-item .v-meaning { font-size: 13px; color: var(--text-secondary); }
+    .vocab-item .v-phonetic { font-size: 12px; color: var(--text-secondary); }
+    .vocab-delete {
+      padding: 4px 10px; border: 1px solid #fecaca; border-radius: 6px;
+      background: #fef2f2; color: var(--error); cursor: pointer; font-size: 12px;
+    }
+    .vocab-delete:hover { background: #fee2e2; }
+
+    /* ===== Audio Player ===== */
+    .audio-player {
+      background: linear-gradient(135deg, #1e1b4b, #3730a3); border-radius: 14px;
+      padding: 18px 20px; margin-bottom: 16px; color: white;
+    }
+    .audio-player .ap-title { font-size: 13px; opacity: 0.8; margin-bottom: 6px; }
+    .audio-player .ap-info { font-size: 15px; font-weight: 600; margin-bottom: 10px; }
+    .audio-controls { display: flex; align-items: center; gap: 12px; }
+    .btn-play {
+      width: 44px; height: 44px; border-radius: 50%; border: none;
+      background: rgba(255,255,255,0.2); color: white; cursor: pointer;
+      font-size: 18px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .btn-play:hover { background: rgba(255,255,255,0.35); transform: scale(1.05); }
+    .btn-play.playing { background: white; color: var(--primary); }
+    .ap-time { font-size: 12px; opacity: 0.8; min-width: 85px; text-align: right; white-space: nowrap; }
+    .ap-speed-btn {
+      padding: 4px 10px; border: 1px solid rgba(255,255,255,0.3); border-radius: 14px;
+      background: transparent; color: white; cursor: pointer; font-size: 11px; font-weight: 600;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .ap-speed-btn:hover, .ap-speed-btn.active { background: rgba(255,255,255,0.2); }
+    .ap-skip-btn {
+      width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.1); color: white; cursor: pointer;
+      font-size: 12px; display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s; flex-shrink: 0; padding: 0;
+    }
+    .ap-skip-btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
+    .ap-skip-row { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+    .ap-progress-container { flex: 1; cursor: pointer; user-select: none; -webkit-user-select: none; }
+    .ap-progress-bar {
+      height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px;
+      position: relative; overflow: visible;
+    }
+    .ap-progress-fill {
+      height: 100%; background: white; border-radius: 3px;
+      position: relative; transition: none; min-width: 0;
+    }
+    .ap-progress-thumb {
+      position: absolute; right: -7px; top: -6px;
+      width: 18px; height: 18px; border-radius: 50%; background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; transition: none;
+      opacity: 0; pointer-events: none;
+    }
+    .ap-progress-bar:hover .ap-progress-thumb,
+    .ap-progress-bar.dragging .ap-progress-thumb { opacity: 1; }
+    .ap-note { font-size: 11px; opacity: 0.7; margin-bottom: 8px; line-height: 1.5; }
+    .ap-jump-btns { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .ap-jump-btn {
+      padding: 5px 14px; border: 1px solid rgba(255,255,255,0.4); border-radius: 16px;
+      background: rgba(255,255,255,0.1); color: white; cursor: pointer;
+      font-size: 12px; font-weight: 500; transition: all 0.15s;
+    }
+    .ap-jump-btn:hover { background: rgba(255,255,255,0.3); border-color: white; }
+
+    /* ===== Listening ===== */
+    .listening-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .listening-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px;
+      background: #f8fafc; border-radius: 8px;
+    }
+    .listening-num {
+      width: 26px; height: 26px; border-radius: 6px; background: var(--primary);
+      color: white; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700;
+    }
+    .listening-input {
+      flex: 1; padding: 7px 10px; border: 2px solid var(--border); border-radius: 7px; font-size: 13px;
+    }
+    .listening-input:focus { outline: none; border-color: var(--primary); }
+
+    /* ===== Writing ===== */
+    .writing-excerpt { background: #f1f5f9; padding: 18px; border-radius: 10px; margin: 12px 0; font-size: 14px; line-height: 1.8; white-space: pre-line; }
+    .writing-textarea {
+      width: 100%; min-height: 200px; padding: 14px; border: 2px solid var(--border);
+      border-radius: 10px; font-size: 14px; resize: vertical; font-family: inherit; line-height: 1.8;
+    }
+    .writing-textarea:focus { outline: none; border-color: var(--primary); }
+    .word-count { text-align: right; color: var(--text-secondary); font-size: 12px; margin-top: 6px; }
+
+    /* ===== Wrong Book ===== */
+    .wrong-item {
+      padding: 12px 14px; border-radius: 10px; margin-bottom: 8px;
+      background: #fef2f2; border: 1px solid #fecaca; font-size: 13px; line-height: 1.6;
+    }
+    .wrong-item .wrong-id { font-weight: 700; color: var(--error); margin-right: 6px; }
+
+    /* ===== Misc ===== */
+    .score-card { text-align: center; padding: 30px 20px; }
+    .score-circle {
+      width: 100px; height: 100px; border-radius: 50%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; margin: 0 auto 16px; border: 5px solid var(--primary);
+    }
+    .score-number { font-size: 30px; font-weight: 800; color: var(--primary); }
+    .empty-state { text-align: center; padding: 50px 20px; color: var(--text-secondary); }
+    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .progress-bar { height: 5px; background: var(--border); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.3s; }
+    .hint-text { font-size: 13px; color: var(--text-secondary); margin-bottom: 14px; padding: 10px; background: #f0f9ff; border-radius: 8px; }
+
+    /* ===== Reading ===== */
+    .reading-passage { font-size: 14px; line-height: 1.9; padding: 16px 20px; background: #f8fafc; border-radius: 12px; margin-bottom: 14px; color: var(--text); }
+    .reading-passage p { margin-bottom: 10px; text-indent: 0; }
+    .passage-title { font-weight: 700; color: var(--primary); margin-bottom: 8px; font-size: 15px; }
+    .short-answer-card { background: #fffbeb; border-left: 4px solid var(--warning); border-radius: 8px; padding: 14px; margin-top: 12px; }
+    .short-answer-card .sa-stem { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .short-answer-card .sa-ref { font-size: 13px; color: var(--text-secondary); font-style: italic; }
+
+    /* ===== Vocab Drill ===== */
+    .vocab-drill-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: #f8fafc; border-radius: 10px; margin-bottom: 8px; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .vocab-drill-item:hover { background: #f1f5f9; }
+    .vocab-drill-item.flipped .vocab-drill-word { color: var(--success); }
+    .vocab-drill-word { font-size: 16px; font-weight: 700; color: var(--primary); min-width: 140px; }
+    .vocab-drill-meaning { font-size: 13px; color: var(--text-secondary); flex: 1; }
+    .vocab-drill-type { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #ede9fe; color: var(--primary); white-space: nowrap; }
+    .vocab-drill-type.n { background: #dbeafe; color: #1e40af; }
+    .vocab-drill-type.v { background: #d1fae5; color: #065f46; }
+    .vocab-drill-type.adj { background: #fef3c7; color: #92400e; }
+    .vocab-drill-type.pro { background: #fce7f3; color: #9d174d; }
+    .vocab-filter { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .vocab-filter-btn {
+      padding: 5px 12px; border: 1px solid var(--border); border-radius: 14px;
+      cursor: pointer; font-size: 12px; background: white; transition: all 0.15s;
+    }
+    .vocab-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .dictation-box { background: #f0f9ff; border: 2px dashed var(--primary-light); border-radius: 12px; padding: 20px; margin: 14px 0; text-align: center; }
+    .dictation-box .dictation-text { font-size: 18px; font-weight: 600; color: var(--primary); line-height: 1.8; }
+
+    @media (max-width: 600px) {
+      .container { padding: 12px 10px; } .card { padding: 16px; }
+      .header { padding: 10px 14px; } .header h1 { font-size: 16px; }
+      .header-stats { gap: 6px; font-size: 11px; }
+      .listening-grid { grid-template-columns: 1fr; }
+      .nav-tab { font-size: 11px; padding: 7px 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>📚 专四刷题 · TEM-4</h1>
+    <div class="header-stats">
+      <span id="correctCount">✅ 0</span>
+      <span id="wrongCount">❌ 0</span>
+      <span id="totalCount">📝 0</span>
+      <span class="vocab-badge" onclick="switchTab('vocabbook')" title="生词本">📖 生词 <strong id="vocabCount">0</strong></span>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Year Selector -->
+    <div class="year-selector" id="yearSelector">
+      <button class="year-btn active" data-year="2025">📅 2025年</button>
+      <button class="year-btn" data-year="2024">📅 2024年</button>
+    </div>
+
+
+
+    <!-- Navigation -->
+    <nav class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" data-tab="dictation">📻 听写</button>
+      <button class="nav-tab" data-tab="listening">🎧 听力理解</button>
+      <button class="nav-tab" data-tab="grammar">📖 语言知识</button>
+      <button class="nav-tab" data-tab="cloze">✏️ 完形填空</button>
+      <button class="nav-tab" data-tab="reading">📚 阅读理解</button>
+      <button class="nav-tab" data-tab="writing">📝 写作</button>
+    </nav>
+    <nav class="nav-tabs" style="margin-top:6px;padding:3px 5px;" id="navSubTabs">
+      <button class="nav-tab" data-tab="vocabdrill" style="font-size:11px;padding:5px 10px;">🔤 词汇</button>
+      <button class="nav-tab" data-tab="wrongbook" style="font-size:11px;padding:5px 10px;">🔖 错题本</button>
+    </nav>
+
+    <div id="contentArea"></div>
+  </div>
+
+  <!-- Vocab Popup Overlay -->
+  <div id="vocabOverlay" style="display:none;"></div>
+
+  <script src="data.js"></script>
+  <script>
+    // ==================== STATE ====================
+    const state = {
+      currentYear: '2025',
+      currentTab: 'dictation',
+      grammarAnswers: {},   // { id: 'A' } — for Language Usage
+      grammarSubmitted: {}, // { id: true|false } — for Language Usage
+      convAnswers: {},      // { id: 'A' } — for Listening Conversations
+      convSubmitted: {},    // { id: true|false } — for Listening Conversations
+      readingAnswers: {},   // { id: 'A' } — for Reading Comprehension
+      readingSubmitted: {}, // { id: true|false } — for Reading Comprehension
+      clozeAnswers: {},
+      clozeSubmitted: false,
+      listeningAnswers: {},
+      listeningSubmitted: false,
+      writingText: '',
+      wrongBook: JSON.parse(localStorage.getItem('tem4_wrongbook') || '[]'),
+      vocabBook: JSON.parse(localStorage.getItem('tem4_vocabbook') || '[]'),
+    };
+
+    function getCurrentExam() {
+      return state.currentYear === '2024' ? TEM4_2024 : TEM4_2025;
+    }
+
+    function saveWrongBook() { localStorage.setItem('tem4_wrongbook', JSON.stringify(state.wrongBook)); }
+    function saveVocabBook() { localStorage.setItem('tem4_vocabbook', JSON.stringify(state.vocabBook)); }
+
+    function addToWrongBook(section, id, stem, userAnswer, correctAnswer, explanation) {
+      if (!state.wrongBook.find(w => w.section === section && w.id === id)) {
+        state.wrongBook.push({ section, id, stem, userAnswer, correctAnswer, explanation, year: state.currentYear, time: Date.now() });
+      }
+      saveWrongBook(); updateStats();
+    }
+
+    function removeFromWrongBook(section, id) {
+      state.wrongBook = state.wrongBook.filter(w => !(w.section === section && w.id === id));
+      saveWrongBook(); updateStats();
+    }
+
+    function updateStats() {
+      let correct = 0, wrong = 0, total = 0;
+      // Grammar
+      Object.values(state.grammarSubmitted).forEach(v => { if (v) correct++; else wrong++; total++; });
+      // Conversations
+      Object.values(state.convSubmitted).forEach(v => { if (v) correct++; else wrong++; total++; });
+      // Reading
+      Object.values(state.readingSubmitted).forEach(v => { if (v) correct++; else wrong++; total++; });
+      if (state.clozeSubmitted) {
+        const exam = getCurrentExam();
+        Object.keys(exam.cloze.answers).forEach(k => {
+          if (state.clozeAnswers[k] === exam.cloze.answers[k]) correct++; else wrong++; total++;
+        });
+      }
+      document.getElementById('correctCount').textContent = `✅ ${correct}`;
+      document.getElementById('wrongCount').textContent = `❌ ${wrong}`;
+      document.getElementById('totalCount').textContent = `📝 ${total}`;
+      document.getElementById('vocabCount').textContent = state.vocabBook.length;
+    }
+
+    // ==================== DICTIONARY API CACHE ====================
+    const _dictCache = {}; // Cache API results to avoid repeated calls
+
+    async function fetchWordDefinition(word) {
+      const lower = word.toLowerCase().replace(/[^a-z-]/g, '');
+      if (_dictCache[lower]) return _dictCache[lower];
+
+      try {
+        // Use the Free Dictionary API
+        const resp = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(lower)}`);
+        if (!resp.ok) {
+          _dictCache[lower] = null;
+          return null;
+        }
+        const data = await resp.json();
+        if (!data || !data[0]) {
+          _dictCache[lower] = null;
+          return null;
+        }
+        const entry = data[0];
+        const phonetic = entry.phonetic || (entry.phonetics && entry.phonetics[0]?.text) || '';
+        const meanings = [];
+        if (entry.meanings) {
+          entry.meanings.forEach(m => {
+            const pos = m.partOfSpeech || '';
+            const defs = (m.definitions || []).slice(0, 2).map(d => d.definition).join('; ');
+            if (defs) meanings.push(pos ? `${pos}. ${defs}` : defs);
+          });
+        }
+        const meaning_en = meanings.slice(0, 2).join(' | ') || '';
+        
+        // Try to get Chinese translation via MyMemory API
+        let meaning_zh = '';
+        try {
+          const zhResp = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(lower)}&langpair=en|zh-CN`);
+          if (zhResp.ok) {
+            const zhData = await zhResp.json();
+            meaning_zh = zhData.responseData?.translatedText || '';
+            // If translation is same as input, it failed
+            if (meaning_zh.toLowerCase() === lower.toLowerCase()) meaning_zh = '';
+          }
+        } catch(e) { /* ignore */ }
+
+        const result = {
+          word: entry.word || lower,
+          phonetic: phonetic || '',
+          meaning: meaning_zh || meaning_en,
+          example: (meaning_zh ? meaning_en : ''),
+        };
+        _dictCache[lower] = result;
+        return result;
+      } catch(e) {
+        _dictCache[lower] = null;
+        return null;
+      }
+    }
+
+    // ==================== VOCAB POPUP ====================
+    function showVocabPopup(word, fetchedEntry) {
+      const lower = word.toLowerCase().replace(/[^a-z-]/g, '');
+      const entry = VOCABULARY[lower] || VOCABULARY[word] || fetchedEntry;
+      const isInBook = state.vocabBook.find(v => v.word === lower);
+
+      const meaning = entry ? entry.meaning : '';
+      const example = entry ? entry.example : '';
+      const phonetic = entry ? (entry.phonetic || '') : '';
+
+      const html = `
+        <div class="vocab-overlay" onclick="if(event.target===this)closeVocabPopup()">
+          <div class="vocab-card">
+            <button class="close-btn" onclick="closeVocabPopup()">✕</button>
+            <div class="vocab-word">${word}</div>
+            <div class="vocab-phonetic">${phonetic}</div>
+            ${entry ? `
+              <div class="vocab-meaning">${meaning || '(释义获取中...)'}</div>
+              ${example ? `<div class="vocab-example">📌 ${example}</div>` : ''}
+            ` : `
+              <div class="vocab-meaning" style="color:var(--text-secondary);">
+                ⚠️ 该词暂未收录，可点击下方按钮添加到生词本。
+              </div>
+            `}
+            <div class="vocab-actions">
+              <button class="btn btn-add-vocab btn-sm ${isInBook ? 'added' : ''}" 
+                onclick="toggleVocab('${word}', '${phonetic.replace(/'/g, "\\'")}', '${meaning.replace(/'/g, "\\'")}', '${(example || '').replace(/'/g, "\\'")}')">
+                ${isInBook ? '✓ 已加入生词本' : '📖 加入生词本'}
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('vocabOverlay').innerHTML = html;
+      document.getElementById('vocabOverlay').style.display = 'block';
+    }
+
+    function closeVocabPopup() {
+      document.getElementById('vocabOverlay').style.display = 'none';
+      updateStats();
+    }
+
+    function toggleVocab(word, phonetic, meaning, example) {
+      const lower = word.toLowerCase().replace(/[^a-z-]/g, '');
+      const idx = state.vocabBook.findIndex(v => v.word === lower);
+      if (idx >= 0) {
+        state.vocabBook.splice(idx, 1);
+      } else {
+        state.vocabBook.push({ word: lower, display: word, phonetic, meaning, example, time: Date.now() });
+      }
+      saveVocabBook();
+      // Refresh popup button
+      const btn = document.querySelector('.btn-add-vocab');
+      const isInBook = state.vocabBook.find(v => v.word === lower);
+      if (btn) {
+        btn.textContent = isInBook ? '✓ 已加入生词本' : '📖 加入生词本';
+        btn.className = `btn btn-add-vocab btn-sm ${isInBook ? 'added' : ''}`;
+      }
+      updateStats();
+    }
+
+    // ==================== WORD CLICK HANDLER ====================
+    let _wordTooltip = null;
+    let _tooltipTimer = null;
+
+    function showWordTooltip(e) {
+      const target = e.target.closest('[data-word]');
+      if (!target) return;
+      const word = target.dataset.word;
+      if (!word || word.length < 3) return;
+
+      const lower = word.toLowerCase().replace(/[^a-z-]/g, '');
+      const entry = VOCABULARY[lower] || VOCABULARY[word] || _dictCache[lower];
+
+      if (_wordTooltip) { _wordTooltip.remove(); _wordTooltip = null; }
+      if (_tooltipTimer) { clearTimeout(_tooltipTimer); _tooltipTimer = null; }
+
+      _tooltipTimer = setTimeout(() => {
+        const rect = target.getBoundingClientRect();
+        const tooltip = document.createElement('div');
+        tooltip.className = 'word-tooltip';
+        if (entry) {
+          tooltip.innerHTML = `
+            <div class="wt-word">${word}</div>
+            <div class="wt-phonetic">${entry.phonetic}</div>
+            <div class="wt-meaning">${entry.meaning}</div>
+            ${entry.example ? `<div class="wt-example">📌 ${entry.example}</div>` : ''}`;
+        } else {
+          tooltip.innerHTML = `
+            <div class="wt-word">${word}</div>
+            <div class="wt-not-found">🔍 点击查看释义</div>`;
+        }
+        document.body.appendChild(tooltip);
+        _wordTooltip = tooltip;
+
+        // Position tooltip above the word
+        let top = rect.top - tooltip.offsetHeight - 8;
+        let left = rect.left;
+        if (top < 8) top = rect.bottom + 8; // Show below if not enough space above
+        if (left + tooltip.offsetWidth > window.innerWidth - 8) left = window.innerWidth - tooltip.offsetWidth - 8;
+        if (left < 8) left = 8;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+      }, 300);
+    }
+
+    function hideWordTooltip(e) {
+      if (_tooltipTimer) { clearTimeout(_tooltipTimer); _tooltipTimer = null; }
+      if (_wordTooltip) { _wordTooltip.remove(); _wordTooltip = null; }
+    }
+
+    function handleWordClick(e) {
+      const selection = window.getSelection().toString().trim();
+      if (selection) return; // Don't intercept text selection
+      
+      const target = e.target.closest('[data-word]');
+      if (!target) return;
+      
+      const word = target.dataset.word;
+      if (word && word.length > 2) {
+        hideWordTooltip();
+        // Show popup immediately using local VOCABULARY data (fully offline)
+        showVocabPopup(word, null);
+      }
+    }
+
+    // Global delegation for word hover
+    document.addEventListener('mouseover', (e) => {
+      if (e.target.closest('[data-word]')) showWordTooltip(e);
+    }, { passive: true });
+    document.addEventListener('mouseout', (e) => {
+      if (e.target.closest('[data-word]') && !e.relatedTarget?.closest('[data-word]')) hideWordTooltip(e);
+    }, { passive: true });
+
+    // ==================== GRAMMAR ====================
+    function wrapWords(text) {
+      // Only wrap words that are in the VOCABULARY dictionary
+      return text.replace(/([A-Za-z][A-Za-z-']*[A-Za-z])/g, (match) => {
+        const lower = match.toLowerCase().replace(/[^a-z-]/g, '');
+        if (VOCABULARY[lower] || VOCABULARY[match]) {
+          return `<span data-word="${match}" class="word-clickable">${match}</span>`;
+        }
+        return match; // Don't wrap words not in vocabulary
+      });
+    }
+
+    function renderGrammar() {
+      const exam = getCurrentExam();
+      const questions = exam.languageUsage;
+      let html = '';
+
+      // Grammar Instructions — always visible
+      html += `
+        <div class="card">
+          <div class="card-title">📋 考试说明</div>
+          <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary);">
+            ${exam.examInstructions ? exam.examInstructions.grammar : ''}
+          </div>
+        </div>
+      `;
+      
+      questions.forEach((q, idx) => {
+        const hasSubmitted = state.grammarSubmitted[q.id] !== undefined;
+        const userAnswer = state.grammarAnswers[q.id];
+        const isCorrect = hasSubmitted && userAnswer === q.answer;
+        
+        html += `
+          <div class="card" onclick="handleWordClick(event)">
+            <div class="q-stem">
+              <span class="q-num ${hasSubmitted ? (isCorrect ? 'correct' : 'wrong') : ''}">${idx + 11}</span>
+              <span>${wrapWords(q.stem)}</span>
+            </div>
+            <div class="options-list">
+              ${Object.entries(q.options).map(([letter, text]) => `
+                <button class="opt-btn 
+                  ${userAnswer === letter ? 'selected' : ''}
+                  ${hasSubmitted && letter === q.answer ? 'correct' : ''}
+                  ${hasSubmitted && userAnswer === letter && letter !== q.answer ? 'wrong' : ''}
+                  ${hasSubmitted ? 'disabled' : ''}"
+                  data-id="${q.id}" data-letter="${letter}"
+                  onclick="event.stopPropagation(); selectGrammar('${q.id}', '${letter}')">
+                  <span class="opt-letter">${letter}</span>
+                  <span>${text}</span>
+                </button>
+              `).join('')}
+            </div>
+            <div class="explanation ${hasSubmitted ? 'show' : ''}">
+              ${hasSubmitted ? `
+                <span class="exp-tag ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ 正确' : '✗ 错误'}</span>
+                ${!isCorrect ? `<br><strong>正确答案：${q.answer}</strong>（你选择了 ${userAnswer || '未作答'}）` : ''}
+                <br><strong>解析：</strong>${q.explanation}
+              ` : ''}
+            </div>
+            ${!hasSubmitted ? `
+              <div class="actions">
+                <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); submitGrammar('${q.id}')">查看答案</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      // "查看全部答案" / "重置全部" button at top
+      const answeredCount = Object.keys(state.grammarAnswers).length;
+      const allSubmitted = Object.keys(state.grammarSubmitted).length >= questions.length;
+      const hasAnyAnswers = answeredCount > 0;
+      
+      if (!allSubmitted) {
+        html = `
+          <div style="text-align:center; margin-bottom:16px;">
+            <button class="btn btn-primary" onclick="submitAllGrammar()">
+              📋 查看全部答案（${answeredCount}/${questions.length} 已作答）
+            </button>
+            ${hasAnyAnswers ? `<button class="btn btn-outline" onclick="resetAllGrammar()" style="margin-left:8px;">重置全部</button>` : ''}
+          </div>
+        ` + html;
+      } else {
+        html = `
+          <div style="text-align:center; margin-bottom:16px;">
+            <button class="btn btn-outline" onclick="resetAllGrammar()">重置全部</button>
+          </div>
+        ` + html;
+      }
+
+      // "查看全部答案" button at the BOTTOM — allows user to go through all questions first
+      if (!allSubmitted) {
+        html += `
+          <div style="text-align:center; margin-top:20px; padding:16px; background:var(--card); border-radius:14px; box-shadow:var(--shadow);">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">
+              📊 答题进度：${answeredCount}/${questions.length} 题已选择
+            </div>
+            <button class="btn btn-primary" onclick="submitAllGrammar()" style="font-size:15px; padding:12px 32px;">
+              📋 查看全部答案
+            </button>
+            ${hasAnyAnswers ? `<button class="btn btn-outline" onclick="resetAllGrammar()" style="margin-left:10px; font-size:15px; padding:12px 32px;">🔄 重置全部</button>` : ''}
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:8px;">
+              💡 先完成所有题目再点击此按钮，可一次性查看全部正确答案与解析
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div style="text-align:center; margin-top:20px; padding:16px; background:var(--card); border-radius:14px; box-shadow:var(--shadow);">
+            <div style="font-size:13px; color:var(--success); margin-bottom:10px;">
+              ✅ 全部答案已查看
+            </div>
+            <button class="btn btn-outline" onclick="resetAllGrammar()" style="font-size:15px; padding:12px 32px;">🔄 重新作答</button>
+          </div>
+        `;
+      }
+
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    // Helper: find a question by ID across all sections
+    function findQuestionById(id) {
+      const exam = getCurrentExam();
+      // Check Language Usage
+      const gq = exam.languageUsage.find(q => q.id === id);
+      if (gq) return { q: gq, type: 'grammar' };
+      // Check Conversation One
+      const c1q = (exam.conversationOne || []).find(q => q.id === id);
+      if (c1q) return { q: c1q, type: 'conv' };
+      // Check Conversation Two
+      const c2q = (exam.conversationTwo || []).find(q => q.id === id);
+      if (c2q) return { q: c2q, type: 'conv' };
+      // Check Reading
+      if (exam.reading && exam.reading.passages) {
+        for (const p of exam.reading.passages) {
+          const rq = p.questions.find(q => q.id === id);
+          if (rq) return { q: rq, type: 'reading' };
+        }
+      }
+      return null;
+    }
+
+    // Get answer/submitted maps for a given question type
+    function getAnswerMaps(type) {
+      if (type === 'conv') return { answers: state.convAnswers, submitted: state.convSubmitted };
+      if (type === 'reading') return { answers: state.readingAnswers, submitted: state.readingSubmitted };
+      return { answers: state.grammarAnswers, submitted: state.grammarSubmitted };
+    }
+
+    function selectGrammar(id, letter) {
+      const found = findQuestionById(id);
+      if (!found) return;
+      const { answers, submitted } = getAnswerMaps(found.type);
+      if (submitted[id]) return;
+      answers[id] = letter;
+      // Re-render current tab (just update selection highlight, no auto-submit)
+      switchTab(state.currentTab);
+    }
+
+    function submitGrammar(id) {
+      const found = findQuestionById(id);
+      if (!found) return;
+      const { answers, submitted } = getAnswerMaps(found.type);
+      const userAnswer = answers[id];
+      if (!userAnswer) { alert('请先选择一个选项'); return; }
+      const isCorrect = userAnswer === found.q.answer;
+      submitted[id] = isCorrect;
+      if (!isCorrect) {
+        addToWrongBook(found.type, id, found.q.stem.substring(0, 50) + '...', userAnswer, found.q.answer, found.q.explanation);
+      }
+      updateStats();
+      switchTab(state.currentTab);
+    }
+
+    function submitAllGrammar() {
+      const exam = getCurrentExam();
+      let count = 0;
+      exam.languageUsage.forEach(q => {
+        if (state.grammarSubmitted[q.id] === undefined) {
+          const userAnswer = state.grammarAnswers[q.id] || '(未作答)';
+          const isCorrect = userAnswer === q.answer;
+          state.grammarSubmitted[q.id] = isCorrect;
+          if (!isCorrect) {
+            addToWrongBook('grammar', q.id, q.stem.substring(0, 50) + '...', userAnswer, q.answer, q.explanation);
+          }
+          count++;
+        }
+      });
+      updateStats();
+      renderGrammar();
+    }
+
+    function resetAllGrammar() {
+      state.grammarAnswers = {};
+      state.grammarSubmitted = {};
+      updateStats();
+      renderGrammar();
+    }
+
+    // Reading section: submit all and reset all
+    function submitAllReading() {
+      const exam = getCurrentExam();
+      if (!exam.reading || !exam.reading.passages) return;
+      exam.reading.passages.forEach(p => {
+        p.questions.forEach(q => {
+          if (state.readingSubmitted[q.id] === undefined) {
+            const userAnswer = state.readingAnswers[q.id] || '(未作答)';
+            const isCorrect = userAnswer === q.answer;
+            state.readingSubmitted[q.id] = isCorrect;
+            if (!isCorrect) {
+              addToWrongBook('reading', q.id, q.stem.substring(0, 50) + '...', userAnswer, q.answer, q.explanation);
+            }
+          }
+        });
+      });
+      updateStats();
+      renderReading();
+    }
+
+    function resetAllReading() {
+      state.readingAnswers = {};
+      state.readingSubmitted = {};
+      updateStats();
+      renderReading();
+    }
+
+    // ==================== CLOZE ====================
+    function renderCloze() {
+      const exam = getCurrentExam();
+      const cloze = exam.cloze;
+      
+      let passageHtml = cloze.passage;
+      // Replace blanks one at a time, starting from highest number to avoid position shifts
+      // Use a unique placeholder approach to handle duplicate blank numbers
+      for (let i = 40; i >= 31; i--) {
+        const userWord = state.clozeAnswers[i];
+        const wordText = userWord ? cloze.wordBank.find(w => w.key === userWord)?.word || '' : '';
+        const cls = userWord ? (cloze.answers[i] === userWord ? 'filled' : 'wrong-fill') : '';
+        const selectedCls = state._clozeSelectedBlank === i ? 'selected' : '';
+        const replacement = `<span class="cloze-blank ${cls} ${selectedCls}" data-blank="${i}" onclick="event.stopPropagation(); selectClozeBlank(${i})">${wordText || '(' + i + ')________'}</span>`;
+        // Use regex that matches the LAST occurrence of this blank number
+        // This ensures we replace the correct one when there are duplicates
+        const regex = new RegExp(`\\(${i}\\)________`, 'g');
+        const matches = passageHtml.match(regex);
+        if (matches && matches.length > 1) {
+          // Multiple occurrences — replace the last one
+          const lastIndex = passageHtml.lastIndexOf(`(${i})________`);
+          passageHtml = passageHtml.substring(0, lastIndex) + replacement + passageHtml.substring(lastIndex + `(${i})________`.length);
+        } else {
+          passageHtml = passageHtml.replace(regex, replacement);
+        }
+      }
+      // Handle special case: (36)"________" pattern
+      passageHtml = passageHtml.replace(/\(36\)"________"/g, () => {
+        const i = 36; const userWord = state.clozeAnswers[i];
+        const wordText = userWord ? cloze.wordBank.find(w => w.key === userWord)?.word || '' : '';
+        const cls = userWord ? (cloze.answers[i] === userWord ? 'filled' : 'wrong-fill') : '';
+        const selectedCls = state._clozeSelectedBlank === i ? 'selected' : '';
+        return `<span class="cloze-blank ${cls} ${selectedCls}" data-blank="${i}" onclick="event.stopPropagation(); selectClozeBlank(${i})">${wordText || '(36)________'}</span>`;
+      });
+
+      // Wrap words in passage (but NOT inside HTML tags, only VOCABULARY words)
+      passageHtml = passageHtml.replace(/(>|^)([^<]+)(<|$)/g, (_, before, text, after) => {
+        const wrapped = text.replace(/([A-Za-z][A-Za-z-']*[A-Za-z])/g, (m) => {
+          if (m.includes('________')) return m;
+          const lower = m.toLowerCase().replace(/[^a-z-]/g, '');
+          if (VOCABULARY[lower] || VOCABULARY[m]) {
+            return `<span data-word="${m}" class="word-clickable">${m}</span>`;
+          }
+          return m;
+        });
+        return before + wrapped + after;
+      });
+
+      let html = '';
+
+      // Cloze Instructions — always visible
+      html += `
+        <div class="card">
+          <div class="card-title">📋 考试说明</div>
+          <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary);">
+            ${exam.examInstructions ? exam.examInstructions.cloze : ''}
+          </div>
+        </div>
+      `;
+
+      html += `
+        <div class="card" onclick="handleWordClick(event)">
+          <div class="card-title">✏️ 第四部分 完形填空（${exam.year}年）</div>
+          <div class="cloze-passage">${passageHtml}</div>
+          <div style="font-weight:600; margin-bottom:6px; color:var(--text-secondary); font-size:13px;">📋 词库（先点击空格，再选择单词）：</div>
+          <div class="word-bank">
+            ${cloze.wordBank.map(w => `
+              <button class="word-chip 
+                ${Object.values(state.clozeAnswers).includes(w.key) ? 'used' : ''}
+                ${state._clozeSelectedWord === w.key ? 'active' : ''}"
+                data-key="${w.key}" 
+                onclick="event.stopPropagation(); selectClozeWord('${w.key}')"
+                ${state.clozeSubmitted ? 'disabled' : ''}>
+                ${w.key}. ${w.word}
+              </button>
+            `).join('')}
+          </div>
+          <div class="actions">
+            ${!state.clozeSubmitted ? `
+              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); submitCloze()">提交全部</button>
+              <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); resetCloze()">重置</button>
+            ` : `
+              <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); resetCloze()">重新作答</button>
+            `}
+          </div>
+        </div>
+      `;
+
+      if (state.clozeSubmitted) {
+        const correctCount = Object.keys(cloze.answers).filter(k => state.clozeAnswers[k] === cloze.answers[k]).length;
+        html += `
+          <div style="margin-top:14px;">
+            <button class="btn btn-outline btn-sm" onclick="toggleClozeRef()">
+              📋 参考答案 ${state._clozeRefVisible ? '▲ 收起' : '▼ 展开'}
+            </button>
+          </div>
+          <div id="clozeRefContent" style="${state._clozeRefVisible ? '' : 'display:none;'} margin-top:8px;">
+            <div class="card">
+              <div class="score-card">
+                <div class="score-circle"><span class="score-number">${correctCount}</span><span style="font-size:12px;color:var(--text-secondary);">/ 10</span></div>
+                <h3>${correctCount >= 8 ? '🎉 优秀！' : correctCount >= 6 ? '👍 不错！' : '💪 继续加油！'}</h3>
+              </div>
+              ${Object.keys(cloze.answers).map(k => {
+                const correct = state.clozeAnswers[k] === cloze.answers[k];
+                return `
+                  <div class="explanation show" style="margin-top:10px;">
+                    <span class="exp-tag ${correct ? 'correct' : 'wrong'}">${correct ? '✓' : '✗'} 第${k}题</span>
+                    <br>你的：<strong>${state.clozeAnswers[k] ? cloze.wordBank.find(w => w.key === state.clozeAnswers[k])?.word : '未作答'}</strong> 
+                    | 正确答案：<strong>${cloze.wordBank.find(w => w.key === cloze.answers[k])?.word}</strong>
+                    <br>${cloze.explanations[k] || ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function selectClozeBlank(blankNum) {
+      if (state.clozeSubmitted) return;
+      state._clozeSelectedBlank = blankNum;
+      state._clozeSelectedWord = state.clozeAnswers[blankNum] || null;
+      renderCloze();
+    }
+
+    function selectClozeWord(key) {
+      if (state.clozeSubmitted) return;
+      if (!state._clozeSelectedBlank) { alert('请先在文章中点击要填的空格'); return; }
+      if (state.clozeAnswers[state._clozeSelectedBlank] === key) {
+        delete state.clozeAnswers[state._clozeSelectedBlank];
+      } else {
+        Object.keys(state.clozeAnswers).forEach(k => { if (state.clozeAnswers[k] === key) delete state.clozeAnswers[k]; });
+        state.clozeAnswers[state._clozeSelectedBlank] = key;
+      }
+      state._clozeSelectedWord = state.clozeAnswers[state._clozeSelectedBlank] || null;
+      renderCloze();
+    }
+
+    function toggleClozeRef() { state._clozeRefVisible = !state._clozeRefVisible; renderCloze(); }
+
+    function submitCloze() {
+      const exam = getCurrentExam();
+      const cloze = exam.cloze;
+      state.clozeSubmitted = true;
+      state._clozeRefVisible = false;
+      Object.keys(cloze.answers).forEach(k => {
+        if (state.clozeAnswers[k] !== cloze.answers[k]) {
+          addToWrongBook('cloze', k, `${exam.year}年第${k}空`,
+            state.clozeAnswers[k] ? cloze.wordBank.find(w => w.key === state.clozeAnswers[k])?.word : '未作答',
+            cloze.wordBank.find(w => w.key === cloze.answers[k])?.word,
+            cloze.explanations[k] || '');
+        }
+      });
+      updateStats();
+      renderCloze();
+    }
+
+    function resetCloze() {
+      state.clozeAnswers = {}; state.clozeSubmitted = false;
+      state._clozeSelectedBlank = null; state._clozeSelectedWord = null;
+      state._clozeRefVisible = false;
+      renderCloze();
+    }
+
+    // ==================== LISTENING ====================
+    // Audio state
+    const audioState = { playing: false, speed: 1.0, currentTime: 0, duration: 0 };
+
+    function getAudioSrc(year, type) {
+      // type: 'dictation' or 'listening'
+      // Use relative path that works both locally and on GitHub Pages
+      if (type === 'dictation') {
+        return `audio/${year}-dictation.mp3`;
+      } else {
+        return `audio/${year}-listening-comp.mp3`;
+      }
+    }
+
+    // Helper: Preload audio and handle errors for GitHub Pages
+    function preloadAudio(audioEl, src) {
+      // Try to set crossOrigin for CORS issues on GitHub Pages
+      try { audioEl.crossOrigin = 'anonymous'; } catch(e) {}
+      audioEl.src = src;
+      audioEl.load();
+      // Log for debugging GitHub Pages issues
+      audioEl.addEventListener('error', function(e) {
+        const target = e.target;
+        console.error('Audio load error:', {
+          src: target.src,
+          error: target.error ? target.error.message : 'unknown',
+          networkState: target.networkState,
+          readyState: target.readyState
+        });
+        const totalEl = document.getElementById('apTotalTime');
+        if (totalEl) totalEl.textContent = '⚠️ 加载失败';
+        // Try showing a helpful message on mobile
+        const apInfo = document.querySelector('.ap-info');
+        if (apInfo) {
+          apInfo.style.color = '#fca5a5';
+          apInfo.textContent += ' (音频加载失败，请检查文件是否存在)';
+        }
+      });
+      // Log success for debugging
+      audioEl.addEventListener('loadedmetadata', function() {
+        console.log('Audio loaded successfully:', src);
+        const apInfo = document.querySelector('.ap-info');
+        if (apInfo) {
+          apInfo.style.color = ''; // reset color
+        }
+      });
+    }
+
+    function formatTime(seconds) {
+      if (isNaN(seconds)) return '00:00';
+      const m = Math.floor(seconds / 60);
+      const s = Math.floor(seconds % 60);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function setupAudioPlayer(startFromSec = 0, audioType = 'listening') {
+      const audio = document.getElementById('tem4Audio');
+      if (!audio) return;
+
+      // Preload the correct audio clip for this section
+      const exam = getCurrentExam();
+      preloadAudio(audio, getAudioSrc(exam.year, audioType));
+
+      audio.playbackRate = audioState.speed;
+
+      // Fix mobile: if duration already loaded from metadata
+      if (audio.duration && !isNaN(audio.duration)) {
+        audioState.duration = audio.duration;
+        const totalEl = document.getElementById('apTotalTime');
+        if (totalEl) totalEl.textContent = formatTime(audio.duration);
+      }
+
+      audio.addEventListener('loadedmetadata', () => {
+        audioState.duration = audio.duration;
+        const totalEl = document.getElementById('apTotalTime');
+        if (totalEl) totalEl.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', () => {
+        audioState.currentTime = audio.currentTime;
+        const pct = audioState.duration ? (audio.currentTime / audioState.duration) * 100 : 0;
+        const fill = document.getElementById('apProgressFill');
+        if (fill) fill.style.width = pct + '%';
+        const curEl = document.getElementById('apCurrentTime');
+        if (curEl) curEl.textContent = formatTime(audio.currentTime);
+      });
+
+      audio.addEventListener('play', () => {
+        audioState.playing = true;
+        const btn = document.getElementById('btnPlayPause');
+        if (btn) { btn.classList.add('playing'); btn.textContent = '⏸'; }
+      });
+
+      audio.addEventListener('pause', () => {
+        audioState.playing = false;
+        const btn = document.getElementById('btnPlayPause');
+        if (btn) { btn.classList.remove('playing'); btn.textContent = '▶'; }
+      });
+
+      audio.addEventListener('ended', () => {
+        audioState.playing = false;
+        audioState.currentTime = 0;
+        const btn = document.getElementById('btnPlayPause');
+        if (btn) { btn.classList.remove('playing'); btn.textContent = '▶'; }
+      });
+
+      // Handle mobile load errors gracefully
+      audio.addEventListener('error', () => {
+        const totalEl = document.getElementById('apTotalTime');
+        if (totalEl) totalEl.textContent = '加载失败';
+        console.warn('Audio failed to load:', audio.src);
+      });
+
+      // If audio was previously loaded, set its time
+      if (audioState.currentTime > 0 && audio.readyState >= 2) {
+        audio.currentTime = audioState.currentTime;
+      }
+    }
+
+    function togglePlay() {
+      const audio = document.getElementById('tem4Audio');
+      if (!audio) return;
+      if (audio.paused) {
+        // Mobile requires user gesture. play() returns a promise.
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch((err) => {
+            console.warn('Playback prevented:', err.message);
+            // Show a hint for mobile users
+            alert('⚠️ 请点击播放按钮开始播放音频。如果仍无法播放，请检查网络连接。');
+          });
+        }
+      } else {
+        audio.pause();
+      }
+    }
+
+    // ---- Draggable progress bar ----
+    let _dragActive = false;
+
+    function getProgressPct(e) {
+      const bar = document.getElementById('apProgressBar');
+      if (!bar) return 0;
+      const rect = bar.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      return Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    }
+
+    function seekAudioByPct(pct) {
+      const audio = document.getElementById('tem4Audio');
+      if (!audio || !audioState.duration) return;
+      audio.currentTime = pct * audioState.duration;
+      // Update visual immediately
+      const fill = document.getElementById('apProgressFill');
+      if (fill) fill.style.width = (pct * 100) + '%';
+      const curEl = document.getElementById('apCurrentTime');
+      if (curEl) curEl.textContent = formatTime(audio.currentTime);
+    }
+
+    function startDrag(e) {
+      e.preventDefault();
+      _dragActive = true;
+      const bar = document.getElementById('apProgressBar');
+      if (bar) bar.classList.add('dragging');
+      seekAudioByPct(getProgressPct(e));
+
+      const onMove = (ev) => {
+        if (!_dragActive) return;
+        seekAudioByPct(getProgressPct(ev));
+      };
+      const onUp = () => {
+        _dragActive = false;
+        const bar = document.getElementById('apProgressBar');
+        if (bar) bar.classList.remove('dragging');
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onUp);
+      };
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onUp);
+    }
+
+    function skipAudio(seconds) {
+      const audio = document.getElementById('tem4Audio');
+      if (!audio) return;
+      audio.currentTime = Math.max(0, Math.min(audioState.duration || Infinity, audio.currentTime + seconds));
+    }
+
+    function changeSpeed() {
+      const audio = document.getElementById('tem4Audio');
+      if (!audio) return;
+      const speeds = [0.75, 1.0, 1.25, 1.5];
+      const currentIdx = speeds.indexOf(audioState.speed);
+      const nextIdx = (currentIdx + 1) % speeds.length;
+      audioState.speed = speeds[nextIdx];
+      audio.playbackRate = audioState.speed;
+      const btn = document.getElementById('btnSpeed');
+      if (btn) btn.textContent = audioState.speed + '×';
+      // Update active class
+      document.querySelectorAll('.ap-speed-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+
+    function jumpToTime(seconds) {
+      const audio = document.getElementById('tem4Audio');
+      if (!audio) return;
+      audio.currentTime = seconds;
+      audio.play().catch(e => console.warn('Auto-play prevented:', e));
+    }
+
+    // ==================== DICTATION ====================
+    function renderDictation() {
+      const exam = getCurrentExam();
+      const dict = exam.dictation;
+      let html = '';
+
+      // Audio Player
+      html += `
+        <div class="audio-player">
+          <div class="ap-title">🎧 ${exam.year}年专四听力真题</div>
+          <div class="ap-info">第一部分 听写 — ${dict.title}</div>
+          <div class="audio-controls">
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(-10)" title="后退10秒">⏪</button>
+            <button class="btn-play" id="btnPlayPause" onclick="togglePlay()">▶</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(10)" title="快进10秒">⏩</button>
+            <div class="ap-progress-container" id="apProgressContainer"
+              onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+              <div class="ap-progress-bar" id="apProgressBar">
+                <div class="ap-progress-fill" id="apProgressFill" style="width:0%">
+                  <div class="ap-progress-thumb" id="apProgressThumb"></div>
+                </div>
+              </div>
+            </div>
+            <span class="ap-time">
+              <span id="apCurrentTime">00:00</span> / <span id="apTotalTime">00:00</span>
+            </span>
+            <button class="ap-speed-btn active" id="btnSpeed" onclick="changeSpeed()">1×</button>
+          </div>
+          <div class="ap-skip-row">
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(-15)" title="后退15秒" style="font-size:10px;">⏪15</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(-5)" title="后退5秒" style="font-size:10px;">⏪5</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(5)" title="快进5秒" style="font-size:10px;">5⏩</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(15)" title="快进15秒" style="font-size:10px;">15⏩</button>
+          </div>
+          <audio id="tem4Audio" preload="metadata" playsinline webkit-playsinline crossorigin="anonymous"></audio>
+        </div>
+      `;
+
+      // Instructions — always visible
+      html += `
+        <div class="card">
+          <div class="card-title">📋 考试说明</div>
+          <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary);">
+            ${exam.examInstructions ? exam.examInstructions.dictation : dict.instructions}
+          </div>
+        </div>
+      `;
+
+      // Reference text (initially hidden)
+      html += `
+        <div class="card">
+          <div class="card-title" style="cursor:pointer;" onclick="toggleDictationRef()">
+            📄 参考答案 ${state._dictationRefVisible ? '▼' : '▶'}
+          </div>
+          <div id="dictationRefContent" style="${state._dictationRefVisible ? '' : 'display:none;'} white-space:pre-line; font-size:15px; line-height:2; padding:16px; background:#f0f9ff; border-radius:10px; border:1px dashed var(--primary-light);">
+            <strong style="color:var(--primary);">${dict.title}</strong>
+            <br><br>${dict.passage}
+          </div>
+        </div>
+      `;
+
+      // Writing area for dictation practice
+      html += `
+        <div class="card">
+          <div class="card-title">✍️ 听写练习区</div>
+          <div class="hint-text">📌 播放音频，在下方输入你听到的内容。听写共读四遍，请按照考试要求完成。</div>
+          <textarea class="writing-textarea" placeholder="在此输入你听到的内容..." 
+            oninput="state._dictationText = this.value">${state._dictationText || ''}</textarea>
+          <div class="word-count">
+            词数：<strong>${(state._dictationText || '').trim().split(/\s+/).filter(w => w).length}</strong>
+          </div>
+          <div class="actions">
+            <button class="btn btn-outline btn-sm" onclick="clearDictation()">清空</button>
+            <button class="btn btn-primary btn-sm" onclick="toggleDictationRef()">查看参考答案</button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('contentArea').innerHTML = html;
+      setTimeout(() => setupAudioPlayer(0, 'dictation'), 100);
+    }
+
+    function toggleDictationRef() {
+      state._dictationRefVisible = !state._dictationRefVisible;
+      renderDictation();
+    }
+
+    function clearDictation() {
+      state._dictationText = '';
+      renderDictation();
+    }
+
+    function renderListening() {
+      const exam = getCurrentExam();
+      const talk = exam.listeningTalk;
+      const conv1 = exam.conversationOne || [];
+      const conv2 = exam.conversationTwo || [];
+      let html = '';
+
+      // Audio Player Card — uses separate Listening Comprehension audio clip
+      html += `
+        <div class="audio-player">
+          <div class="ap-title">🎧 ${exam.year}年专四听力真题 · 听力理解</div>
+          <div class="ap-info">A节 讲座 — ${talk.title} ｜ B节 会话</div>
+          <div class="audio-controls">
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(-10)" title="后退10秒">⏪</button>
+            <button class="btn-play" id="btnPlayPause" onclick="togglePlay()">▶</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(10)" title="快进10秒">⏩</button>
+            <div class="ap-progress-container" id="apProgressContainer"
+              onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+              <div class="ap-progress-bar" id="apProgressBar">
+                <div class="ap-progress-fill" id="apProgressFill" style="width:0%">
+                  <div class="ap-progress-thumb" id="apProgressThumb"></div>
+                </div>
+              </div>
+            </div>
+            <span class="ap-time">
+              <span id="apCurrentTime">00:00</span> / <span id="apTotalTime">00:00</span>
+            </span>
+            <button class="ap-speed-btn active" id="btnSpeed" onclick="changeSpeed()">1×</button>
+          </div>
+          <div class="ap-skip-row">
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(-15)" title="后退15秒" style="font-size:10px;">⏪15</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(-5)" title="后退5秒" style="font-size:10px;">⏪5</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(5)" title="快进5秒" style="font-size:10px;">5⏩</button>
+            <button class="ap-skip-btn" onclick="event.stopPropagation(); skipAudio(15)" title="快进15秒" style="font-size:10px;">15⏩</button>
+          </div>
+          <audio id="tem4Audio" preload="metadata" playsinline webkit-playsinline crossorigin="anonymous"></audio>
+        </div>
+      `;
+
+      // Listening Instructions — always visible
+      html += `
+        <div class="card">
+          <div class="card-title">📋 考试说明</div>
+          <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary);">
+            ${exam.examInstructions ? exam.examInstructions.listening : ''}
+          </div>
+        </div>
+      `;
+
+      // ===== SECTION A: TALK =====
+      html += `<div class="card"><div class="card-title">📝 A节 — 讲座（共${talk.items.length}空）</div>`;
+
+      // Talk Script Card (collapsible)
+      if (talk.script) {
+        html += `
+          <div style="margin-bottom:14px;" onclick="handleWordClick(event)">
+            <div style="cursor:pointer; font-weight:600; color:var(--primary); font-size:13px;" onclick="event.stopPropagation(); toggleTalkScript()">
+              📄 听力原文 Transcript ${state._talkScriptVisible ? '▼' : '▶'}
+            </div>
+            <div id="talkScriptContent" style="${state._talkScriptVisible ? '' : 'display:none;'} white-space:pre-line; font-size:14px; line-height:1.9; padding:12px; background:#f8fafc; border-radius:8px; margin-top:8px;">
+              ${wrapWords(talk.script)}
+            </div>
+          </div>
+        `;
+      }
+
+      html += '</div>'; // end SECTION A card
+
+      // ===== SECTION B: CONVERSATIONS =====
+      // Conversation One
+      html += `<div class="card" onclick="handleWordClick(event)"><div class="card-title">💬 B节 — 会话一 · 健身中心</div>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">第1至5题基于会话一。</p>`;
+      if (exam.conversationOneScript) {
+        html += `
+          <div style="margin-bottom:14px;" onclick="handleWordClick(event)">
+            <div style="cursor:pointer; font-weight:600; color:var(--primary); font-size:13px;" onclick="event.stopPropagation(); toggleConvScript('conv1')">
+              📄 会话原文 ${state._conv1ScriptVisible ? '▼' : '▶'}
+            </div>
+            <div id="conv1Script" style="${state._conv1ScriptVisible ? '' : 'display:none;'} white-space:pre-line; font-size:13px; line-height:1.8; padding:12px; background:#f8fafc; border-radius:8px; margin-top:8px;">
+              ${wrapWords(exam.conversationOneScript)}
+            </div>
+          </div>
+        `;
+      }
+      conv1.forEach((q, idx) => {
+        const hasSubmitted = state.convSubmitted[q.id] !== undefined;
+        const userAnswer = state.convAnswers[q.id];
+        const isCorrect = hasSubmitted && userAnswer === q.answer;
+        html += renderQuestionCard(q, idx + 1, hasSubmitted, userAnswer, isCorrect);
+      });
+      // "查看全部答案" button for Conversation One
+      const conv1Answered = conv1.filter(q => state.convAnswers[q.id]).length;
+      const conv1AllSubmitted = conv1.every(q => state.convSubmitted[q.id] !== undefined);
+      if (!conv1AllSubmitted) {
+        html += `<div style="text-align:center; margin-top:8px;">
+          <button class="btn btn-primary btn-sm" onclick="submitAllConv('conv1')">📋 查看全部答案（会话一，${conv1Answered}/5 已作答）</button>
+        </div>`;
+      }
+      html += '</div>';
+
+      // Conversation Two
+      html += `<div class="card" onclick="handleWordClick(event)"><div class="card-title">💬 B节 — 会话二 · 未来汽车</div>
+        <p style="color:var(--text-secondary);font-size:13px;margin-bottom:12px;">第6至10题基于会话二。</p>`;
+      if (exam.conversationTwoScript) {
+        html += `
+          <div style="margin-bottom:14px;" onclick="handleWordClick(event)">
+            <div style="cursor:pointer; font-weight:600; color:var(--primary); font-size:13px;" onclick="event.stopPropagation(); toggleConvScript('conv2')">
+              📄 会话原文 ${state._conv2ScriptVisible ? '▼' : '▶'}
+            </div>
+            <div id="conv2Script" style="${state._conv2ScriptVisible ? '' : 'display:none;'} white-space:pre-line; font-size:13px; line-height:1.8; padding:12px; background:#f8fafc; border-radius:8px; margin-top:8px;">
+              ${wrapWords(exam.conversationTwoScript)}
+            </div>
+          </div>
+        `;
+      }
+      conv2.forEach((q, idx) => {
+        const hasSubmitted = state.convSubmitted[q.id] !== undefined;
+        const userAnswer = state.convAnswers[q.id];
+        const isCorrect = hasSubmitted && userAnswer === q.answer;
+        html += renderQuestionCard(q, idx + 6, hasSubmitted, userAnswer, isCorrect);
+      });
+      // "查看全部答案" button for Conversation Two
+      const conv2Answered = conv2.filter(q => state.convAnswers[q.id]).length;
+      const conv2AllSubmitted = conv2.every(q => state.convSubmitted[q.id] !== undefined);
+      if (!conv2AllSubmitted) {
+        html += `<div style="text-align:center; margin-top:8px;">
+          <button class="btn btn-primary btn-sm" onclick="submitAllConv('conv2')">📋 查看全部答案（会话二，${conv2Answered}/5 已作答）</button>
+        </div>`;
+      }
+      html += '</div>';
+
+      document.getElementById('contentArea').innerHTML = html;
+      // Setup audio after DOM rendered — uses separate Listening Comprehension audio clip
+      setTimeout(() => setupAudioPlayer(0, 'listening'), 100);
+    }
+
+    function toggleTalkScript() {
+      state._talkScriptVisible = !state._talkScriptVisible;
+      renderListening();
+    }
+
+    function submitListening() { state.listeningSubmitted = true; renderListening(); }
+    function resetListening() { state.listeningAnswers = {}; state.listeningSubmitted = false; renderListening(); }
+
+    // Submit all answers for a conversation
+    function submitAllConv(convKey) {
+      const exam = getCurrentExam();
+      const questions = convKey === 'conv1' ? exam.conversationOne : exam.conversationTwo;
+      questions.forEach(q => {
+        if (state.convSubmitted[q.id] === undefined) {
+          const userAnswer = state.convAnswers[q.id] || '(未作答)';
+          const isCorrect = userAnswer === q.answer;
+          state.convSubmitted[q.id] = isCorrect;
+          if (!isCorrect) {
+            addToWrongBook('conv', q.id, q.stem.substring(0, 50) + '...', userAnswer, q.answer, q.explanation);
+          }
+        }
+      });
+      updateStats();
+      renderListening();
+    }
+
+    // ==================== WRITING ====================
+    function renderWriting() {
+      const exam = getCurrentExam();
+      const writing = exam.writing;
+      const wordCount = state.writingText.trim() ? state.writingText.trim().split(/\s+/).length : 0;
+      let html = '';
+
+      // Writing Instructions
+      html += `
+        <div class="card">
+          <div class="card-title">📋 考试说明</div>
+          <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary);">
+            ${exam.examInstructions ? exam.examInstructions.writing : ''}
+          </div>
+        </div>
+      `;
+
+      html += `
+        <div class="card" onclick="handleWordClick(event)">
+          <div class="card-title">📝 第六部分 写作（${writing.time}分钟）</div>
+          <p style="font-weight:600; margin-bottom:6px;">📌 题目要求：</p>
+          <p style="color:var(--text-secondary); white-space:pre-line; margin-bottom:12px;">${writing.prompt}</p>
+          <p style="font-weight:600; margin-bottom:6px;">📄 阅读材料：</p>
+          <div class="writing-excerpt">${wrapWords(writing.excerpt)}</div>
+          <p style="margin-top:16px; font-weight:600; margin-bottom:6px;">✍️ 你的作文：</p>
+          <textarea class="writing-textarea" placeholder="在此输入你的作文（不少于200词）..." 
+            oninput="updateWriting(this.value)">${state.writingText}</textarea>
+          <div class="word-count">
+            词数：<strong style="color:${wordCount >= 200 ? 'var(--success)' : 'var(--error)'}">${wordCount}</strong>
+            ${wordCount < 200 ? '（需≥200词）' : '✓'}
+          </div>
+          <div class="actions">
+            <button class="btn btn-outline btn-sm" onclick="event.stopPropagation(); clearWriting()">清空</button>
+            <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); copyWriting()">复制作文</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">💡 写作提示</div>
+          <ul style="padding-left:20px; color:var(--text-secondary); line-height:2; font-size:13px;">
+            <li><strong>第一段</strong>：概括文章主要观点</li>
+            <li><strong>第二段</strong>：从学习者角度分析，结合自身经历</li>
+            <li><strong>第三段</strong>：总结观点，提出建议</li>
+            <li>衔接词：However, Moreover, In conclusion, From my perspective...</li>
+          </ul>
+        </div>
+      `;
+
+      // Model essay (reference)
+      if (writing.modelEssay) {
+        html += `
+          <div class="card">
+            <div class="card-title">📑 参考范文</div>
+            <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:16px; background:#f9fafb; border-radius:10px; color:var(--text-primary); border:1px solid var(--border);">
+${writing.modelEssay}
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function updateWriting(text) { state.writingText = text; renderWriting(); }
+    function clearWriting() { state.writingText = ''; renderWriting(); }
+    function copyWriting() {
+      if (!state.writingText.trim()) { alert('请先输入作文'); return; }
+      navigator.clipboard.writeText(state.writingText).then(() => alert('已复制'));
+    }
+
+    // ==================== WRONG BOOK ====================
+    function renderWrongBook() {
+      if (state.wrongBook.length === 0) {
+        document.getElementById('contentArea').innerHTML = `
+          <div class="card"><div class="empty-state"><div class="empty-icon">🏆</div><h3>错题本为空</h3><p>暂无错题，继续保持！</p></div></div>`;
+        return;
+      }
+      const sectionNames = { grammar: '语言知识', cloze: '完形填空' };
+      let html = `
+        <div class="card">
+          <div class="card-title">🔖 错题本（共 ${state.wrongBook.length} 题）</div>
+          <button class="btn btn-danger btn-sm" onclick="clearWrongBook()" style="margin-bottom:12px;">清空错题本</button>
+      `;
+      state.wrongBook.forEach((w, idx) => {
+        html += `
+          <div class="wrong-item">
+            <span class="wrong-id">#${idx + 1} [${w.year || ''} ${sectionNames[w.section] || w.section}]</span>
+            <strong>${w.stem}</strong><br>
+            你的：<span style="color:var(--error);">${w.userAnswer}</span>
+            | 正确：<span style="color:var(--success);">${w.correctAnswer}</span><br>
+            <small>${w.explanation}</small><br>
+            <button class="btn btn-outline btn-sm" style="margin-top:4px;" 
+              onclick="removeFromWrongBook('${w.section}','${w.id}');renderWrongBook();">移除</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function clearWrongBook() {
+      if (confirm('确定清空所有错题？')) { state.wrongBook = []; saveWrongBook(); updateStats(); renderWrongBook(); }
+    }
+
+    // ==================== CONVERSATION TOGGLE (used inside Listening) ====================
+    function toggleShortAnswer(num) {
+      const el = document.getElementById('saRef' + num);
+      if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
+    }
+
+    function toggleConvScript(conv) {
+      if (conv === 'conv1') {
+        state._conv1ScriptVisible = !state._conv1ScriptVisible;
+      } else {
+        state._conv2ScriptVisible = !state._conv2ScriptVisible;
+      }
+      renderListening();
+    }
+
+    function renderQuestionCard(q, num, hasSubmitted, userAnswer, isCorrect) {
+      return `
+        <div style="margin-bottom:14px;">
+          <div class="q-stem">
+            <span class="q-num ${hasSubmitted ? (isCorrect ? 'correct' : 'wrong') : ''}">${num}</span>
+            <span>${wrapWords(q.stem)}</span>
+          </div>
+          <div class="options-list">
+            ${Object.entries(q.options).map(([letter, text]) => `
+              <button class="opt-btn 
+                ${userAnswer === letter ? 'selected' : ''}
+                ${hasSubmitted && letter === q.answer ? 'correct' : ''}
+                ${hasSubmitted && userAnswer === letter && letter !== q.answer ? 'wrong' : ''}
+                ${hasSubmitted ? 'disabled' : ''}"
+                data-id="${q.id}" data-letter="${letter}"
+                onclick="event.stopPropagation(); selectGrammar('${q.id}', '${letter}')">
+                <span class="opt-letter">${letter}</span>
+                <span>${text}</span>
+              </button>
+            `).join('')}
+          </div>
+          <div class="explanation ${hasSubmitted ? 'show' : ''}">
+            ${hasSubmitted ? `
+              <span class="exp-tag ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ 正确' : '✗ 错误'}</span>
+              ${!isCorrect ? `<br><strong>正确答案：${q.answer}</strong>（你选择了 ${userAnswer || '未作答'}）` : ''}
+              <br><strong>解析：</strong>${q.explanation}
+            ` : ''}
+          </div>
+          ${!hasSubmitted ? `
+            <div class="actions">
+              <button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); submitGrammar('${q.id}')">查看答案</button>
+            </div>` : ''}
+        </div>
+      `;
+    }
+
+    // ==================== READING ====================
+    function renderReading() {
+      const exam = getCurrentExam();
+      const reading = exam.reading;
+      if (!reading) { document.getElementById('contentArea').innerHTML = '<div class="card"><div class="empty-state"><h3>暂无阅读数据</h3></div></div>'; return; }
+      let html = '';
+
+      // Reading Instructions — always visible
+      html += `
+        <div class="card">
+          <div class="card-title">📋 考试说明</div>
+          <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary);">
+            ${exam.examInstructions ? exam.examInstructions.reading : ''}
+          </div>
+        </div>
+      `;
+
+      // Count reading questions for progress tracking
+      const readingQuestions = [];
+      reading.passages.forEach(p => p.questions.forEach(q => readingQuestions.push(q)));
+      const readingAnsweredCount = Object.keys(state.readingAnswers).length;
+      const readingAllSubmitted = Object.keys(state.readingSubmitted).length >= readingQuestions.length;
+
+      // Section A - Multiple Choice
+      html += '<div class="card"><div class="card-title">📚 第五部分 阅读理解 — A节（选择题）</div>';
+      html += '<p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px;">每题有四个选项，选择最佳答案。</p>';
+
+      reading.passages.forEach((passage, pIdx) => {
+        html += `<div class="reading-passage">
+          <div class="passage-title">${passage.title}</div>
+          ${passage.paragraphs.map(p => `<p>${wrapWords(p)}</p>`).join('')}
+        </div>`;
+
+        passage.questions.forEach(q => {
+          const hasSubmitted = state.readingSubmitted[q.id] !== undefined;
+          const userAnswer = state.readingAnswers[q.id];
+          const isCorrect = hasSubmitted && userAnswer === q.answer;
+          html += `<div style="margin-bottom:14px;" onclick="handleWordClick(event)">
+            <div class="q-stem">
+              <span class="q-num ${hasSubmitted ? (isCorrect ? 'correct' : 'wrong') : ''}">${q.num}</span>
+              <span>${wrapWords(q.stem)}</span>
+            </div>
+            <div class="options-list">
+              ${Object.entries(q.options).map(([letter, text]) => `
+                <button class="opt-btn 
+                  ${userAnswer === letter ? 'selected' : ''}
+                  ${hasSubmitted && letter === q.answer ? 'correct' : ''}
+                  ${hasSubmitted && userAnswer === letter && letter !== q.answer ? 'wrong' : ''}
+                  ${hasSubmitted ? 'disabled' : ''}"
+                  data-id="${q.id}" data-letter="${letter}"
+                  onclick="event.stopPropagation(); selectGrammar('${q.id}', '${letter}')">
+                  <span class="opt-letter">${letter}</span>
+                  <span>${text}</span>
+                </button>
+              `).join('')}
+            </div>
+            <div class="explanation ${hasSubmitted ? 'show' : ''}">
+              ${hasSubmitted ? `<span class="exp-tag ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? '✓ 正确' : '✗ 错误'}</span>
+                ${!isCorrect ? `<br><strong>正确答案：${q.answer}</strong>（你选择了 ${userAnswer}）` : ''}
+                <br><strong>解析：</strong>${q.explanation}` : ''}
+            </div>
+            ${!hasSubmitted ? `<div class="actions"><button class="btn btn-primary btn-sm" onclick="event.stopPropagation(); submitGrammar('${q.id}')">查看答案</button></div>` : ''}
+          </div>`;
+        });
+      });
+      html += '</div>';
+
+      // Section B - Short Answer Questions
+      html += '<div class="card"><div class="card-title">📝 B节 — 简答题</div>';
+      html += `
+        <div style="white-space:pre-line; font-size:13px; line-height:1.8; padding:14px; background:#f0f9ff; border-radius:10px; color:var(--text-secondary); margin-bottom:16px;">
+SECTION B SHORT ANSWER QUESTIONS
+In this section there are five short answer questions based on the passages in Section A. Answer the questions with NO MORE THAN TEN WORDS in the space provided on ANSWER SHEET TWO.
+        </div>
+      `;
+      reading.shortAnswers.forEach(sa => {
+        html += `
+          <div class="short-answer-card">
+            <div class="sa-stem">${sa.num}. ${sa.stem}</div>
+            <div class="sa-ref" id="saRef${sa.num}" style="display:none;">
+              <div style="margin-bottom:6px;"><strong>📌 参考答案：</strong>${sa.reference}</div>
+              ${sa.explanation ? `<div style="color:var(--text-secondary);"><strong>💡 解析：</strong>${sa.explanation}</div>` : ''}
+            </div>
+            <button class="btn btn-outline btn-sm" style="margin-top:6px;" onclick="toggleShortAnswer(${sa.num})">查看参考答案</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+
+      // "查看全部答案" button at the BOTTOM — allows user to go through all passages first
+      if (!readingAllSubmitted) {
+        html += `
+          <div style="text-align:center; margin-top:20px; padding:16px; background:var(--card); border-radius:14px; box-shadow:var(--shadow);">
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">
+              📊 答题进度：${readingAnsweredCount}/${readingQuestions.length} 题已选择
+            </div>
+            <button class="btn btn-primary" onclick="submitAllReading()" style="font-size:15px; padding:12px 32px;">
+              📋 查看全部答案
+            </button>
+            ${readingAnsweredCount > 0 ? `<button class="btn btn-outline" onclick="resetAllReading()" style="margin-left:10px; font-size:15px; padding:12px 32px;">🔄 重置全部</button>` : ''}
+            <div style="font-size:12px; color:var(--text-secondary); margin-top:8px;">
+              💡 先阅读文章并完成所有题目，再点击此按钮一次性查看正确答案与解析
+            </div>
+          </div>
+        `;
+      } else {
+        html += `
+          <div style="text-align:center; margin-top:20px; padding:16px; background:var(--card); border-radius:14px; box-shadow:var(--shadow);">
+            <div style="font-size:13px; color:var(--success); margin-bottom:10px;">
+              ✅ 全部答案已查看
+            </div>
+            <button class="btn btn-outline" onclick="resetAllReading()" style="font-size:15px; padding:12px 32px;">🔄 重新作答</button>
+          </div>
+        `;
+      }
+
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    // ==================== VOCAB DRILL (词汇专项) ====================
+    const DRILL_VOCAB = [
+      // 名词
+      { word: "dictation", meaning: "n. 听写", type: "n" },
+      { word: "comprehension", meaning: "n. 理解", type: "n" },
+      { word: "conversation", meaning: "n. 会话", type: "n" },
+      { word: "janitor", meaning: "n. 看门人", type: "n" },
+      { word: "trunk", meaning: "n. 树干；行李箱", type: "n" },
+      { word: "sample", meaning: "n. 样品", type: "n" },
+      { word: "album", meaning: "n. 相册；专辑", type: "n" },
+      { word: "staff", meaning: "n. 员工", type: "n" },
+      { word: "vitamin", meaning: "n. 维生素", type: "n" },
+      { word: "landmark", meaning: "n. 里程碑；地标", type: "n" },
+      { word: "symptom", meaning: "n. 症状", type: "n" },
+      { word: "resemblance", meaning: "n. 相似", type: "n" },
+      { word: "battery", meaning: "n. 电池", type: "n" },
+      { word: "coach", meaning: "n. 教练", type: "n" },
+      { word: "metaphor", meaning: "n. 隐喻", type: "n" },
+      { word: "coherence", meaning: "n. 连贯性", type: "n" },
+      { word: "domain", meaning: "n. 领域", type: "n" },
+      { word: "concept", meaning: "n. 概念", type: "n" },
+      { word: "resident", meaning: "n. 居民", type: "n" },
+      { word: "nursery", meaning: "n. 托儿所", type: "n" },
+      { word: "initiative", meaning: "n. 倡议；主动性", type: "n" },
+      { word: "conflict", meaning: "n. 冲突", type: "n" },
+      { word: "tolerance", meaning: "n. 容忍", type: "n" },
+      { word: "prospect", meaning: "n. 前景", type: "n" },
+      { word: "liquor", meaning: "n. 烈酒", type: "n" },
+      { word: "errand", meaning: "n. 差事", type: "n" },
+      { word: "solemnity", meaning: "n. 庄严", type: "n" },
+      { word: "venture", meaning: "n. 冒险；企业", type: "n" },
+      { word: "perfume", meaning: "n. 香水；香味", type: "n" },
+      { word: "orchid", meaning: "n. 兰花", type: "n" },
+      { word: "pollen", meaning: "n. 花粉", type: "n" },
+      { word: "stigma", meaning: "n. 柱头；耻辱", type: "n" },
+      { word: "pollinator", meaning: "n. 传粉者", type: "n" },
+      { word: "evolution", meaning: "n. 进化", type: "n" },
+      { word: "species", meaning: "n. 物种", type: "n" },
+      { word: "habitat", meaning: "n. 栖息地", type: "n" },
+      { word: "snippet", meaning: "n. 片段", type: "n" },
+      { word: "span", meaning: "n. 跨度；持续时间", type: "n" },
+      { word: "media", meaning: "n. 媒体", type: "n" },
+      { word: "technology", meaning: "n. 技术", type: "n" },
+      { word: "culture", meaning: "n. 文化", type: "n" },
+      // 动词
+      { word: "guard", meaning: "v. 守卫", type: "v" },
+      { word: "manage", meaning: "v. 管理；设法做到", type: "v" },
+      { word: "envious", meaning: "adj. 嫉妒的", type: "adj" },
+      { word: "upload", meaning: "v. 上传", type: "v" },
+      { word: "reduce", meaning: "v. 减少", type: "v" },
+      { word: "enrich", meaning: "v. 丰富；使富足", type: "v" },
+      { word: "perceive", meaning: "v. 感知", type: "v" },
+      { word: "persist", meaning: "v. 坚持；持续", type: "v" },
+      { word: "blame", meaning: "v. 责备", type: "v" },
+      { word: "entertain", meaning: "v. 娱乐；考虑", type: "v" },
+      { word: "conceptualize", meaning: "v. 概念化", type: "v" },
+      { word: "narrate", meaning: "v. 叙述", type: "v" },
+      { word: "sustain", meaning: "v. 维持", type: "v" },
+      { word: "cultivate", meaning: "v. 培养；耕作", type: "v" },
+      { word: "evolve", meaning: "v. 进化；发展", type: "v" },
+      { word: "isolate", meaning: "v. 隔离", type: "v" },
+      { word: "despise", meaning: "v. 鄙视", type: "v" },
+      { word: "reproduce", meaning: "v. 繁殖", type: "v" },
+      { word: "pollinate", meaning: "v. 授粉", type: "v" },
+      { word: "synthesize", meaning: "v. 合成", type: "v" },
+      { word: "absorb", meaning: "v. 吸收", type: "v" },
+      { word: "encode", meaning: "v. 编码", type: "v" },
+      { word: "fragment", meaning: "v. 使碎片化", type: "v" },
+      { word: "segregate", meaning: "v. 隔离；分开", type: "v" },
+      // 形容词/副词
+      { word: "advisable", meaning: "adj. 明智的", type: "adj" },
+      { word: "flexible", meaning: "adj. 灵活的", type: "adj" },
+      { word: "hypothetical", meaning: "adj. 假设的", type: "adj" },
+      { word: "temporary", meaning: "adj. 临时的", type: "adj" },
+      { word: "substantial", meaning: "adj. 大量的", type: "adj" },
+      { word: "guilty", meaning: "adj. 有罪的；内疚的", type: "adj" },
+      { word: "proportional", meaning: "adj. 成比例的", type: "adj" },
+      { word: "nutritious", meaning: "adj. 有营养的", type: "adj" },
+      { word: "sensational", meaning: "adj. 轰动的", type: "adj" },
+      { word: "sensible", meaning: "adj. 明智的", type: "adj" },
+      { word: "deliberate", meaning: "adj. 故意的", type: "adj" },
+      { word: "faulty", meaning: "adj. 有缺陷的", type: "adj" },
+      { word: "ornamental", meaning: "adj. 装饰性的", type: "adj" },
+      { word: "supplementary", meaning: "adj. 补充的", type: "adj" },
+      { word: "tangible", meaning: "adj. 有形的", type: "adj" },
+      { word: "revolutionary", meaning: "adj. 革命性的", type: "adj" },
+      { word: "depressing", meaning: "adj. 令人沮丧的", type: "adj" },
+      { word: "enormous", meaning: "adj. 巨大的", type: "adj" },
+      { word: "desperate", meaning: "adj. 绝望的；急需的", type: "adj" },
+      { word: "decorous", meaning: "adj. 得体的", type: "adj" },
+      { word: "harsh", meaning: "adj. 严厉的", type: "adj" },
+      { word: "solemn", meaning: "adj. 庄严的", type: "adj" },
+      { word: "varied", meaning: "adj. 多样的", type: "adj" },
+      { word: "mysterious", meaning: "adj. 神秘的", type: "adj" },
+      { word: "efficient", meaning: "adj. 高效的", type: "adj" },
+      { word: "fragmented", meaning: "adj. 碎片化的", type: "adj" },
+      { word: "linear", meaning: "adj. 线性的", type: "adj" },
+      { word: "sustained", meaning: "adj. 持续的", type: "adj" },
+      { word: "inter-generational", meaning: "adj. 代际的", type: "adj" },
+      { word: "residential", meaning: "adj. 住宅的", type: "adj" },
+    ];
+
+    const vocabDrillState = { filter: 'all', flipped: {} };
+
+    function renderVocabDrill() {
+      const filter = vocabDrillState.filter;
+      const filtered = filter === 'all' ? DRILL_VOCAB : DRILL_VOCAB.filter(v => v.type === filter);
+
+      const typeCounts = { all: DRILL_VOCAB.length, n: 0, v: 0, adj: 0 };
+      DRILL_VOCAB.forEach(v => { typeCounts[v.type]++; });
+
+      let html = `
+        <div class="card">
+          <div class="card-title">🔤 2025 TEM4 高频核心词汇（共 ${DRILL_VOCAB.length} 词）</div>
+          <div class="hint-text">💡 点击单词可翻转查看释义。这些词汇来自2025年专四真题，是考试重点生词。</div>
+          <div class="vocab-filter">
+            <button class="vocab-filter-btn ${filter === 'all' ? 'active' : ''}" onclick="filterVocabDrill('all')">全部 (${typeCounts.all})</button>
+            <button class="vocab-filter-btn ${filter === 'n' ? 'active' : ''}" onclick="filterVocabDrill('n')">名词 (${typeCounts.n})</button>
+            <button class="vocab-filter-btn ${filter === 'v' ? 'active' : ''}" onclick="filterVocabDrill('v')">动词 (${typeCounts.v})</button>
+            <button class="vocab-filter-btn ${filter === 'adj' ? 'active' : ''}" onclick="filterVocabDrill('adj')">形容词/副词 (${typeCounts.adj})</button>
+          </div>
+          ${filtered.map((v, idx) => `
+            <div class="vocab-drill-item ${vocabDrillState.flipped[v.word] ? 'flipped' : ''}" onclick="flipVocabDrill('${v.word}')">
+              <span class="vocab-drill-type ${v.type}">${v.type === 'n' ? '名' : v.type === 'v' ? '动' : '形'}</span>
+              <span class="vocab-drill-word">${vocabDrillState.flipped[v.word] ? v.meaning : v.word}</span>
+              <span class="vocab-drill-meaning">${vocabDrillState.flipped[v.word] ? v.word : '点击查看释义'}</span>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function filterVocabDrill(type) {
+      vocabDrillState.filter = type;
+      vocabDrillState.flipped = {};
+      renderVocabDrill();
+    }
+
+    function flipVocabDrill(word) {
+      vocabDrillState.flipped[word] = !vocabDrillState.flipped[word];
+      renderVocabDrill();
+    }
+
+    // ==================== VOCAB BOOK ====================
+    function renderVocabBook() {
+      if (state.vocabBook.length === 0) {
+        document.getElementById('contentArea').innerHTML = `
+          <div class="card"><div class="empty-state"><div class="empty-icon">📖</div><h3>生词本为空</h3><p>点击题目中的任意英语单词即可查词并加入生词本</p></div></div>`;
+        return;
+      }
+      let html = `
+        <div class="card">
+          <div class="card-title">📖 生词本（共 ${state.vocabBook.length} 词）</div>
+          <button class="btn btn-danger btn-sm" onclick="clearVocabBook()" style="margin-bottom:12px;">清空生词本</button>
+      `;
+      state.vocabBook.forEach((v, idx) => {
+        html += `
+          <div class="vocab-item" onclick="showVocabPopup('${v.display}')">
+            <div>
+              <span class="v-word">${v.display}</span>
+              <span class="v-phonetic">${v.phonetic}</span>
+              <br><span class="v-meaning">${v.meaning}</span>
+            </div>
+            <button class="vocab-delete" onclick="event.stopPropagation(); deleteVocab(${idx})">移除</button>
+          </div>
+        `;
+      });
+      html += '</div>';
+      document.getElementById('contentArea').innerHTML = html;
+    }
+
+    function deleteVocab(idx) { state.vocabBook.splice(idx, 1); saveVocabBook(); updateStats(); renderVocabBook(); }
+    function clearVocabBook() {
+      if (confirm('确定清空生词本？')) { state.vocabBook = []; saveVocabBook(); updateStats(); renderVocabBook(); }
+    }
+
+    // ==================== TAB SWITCHING ====================
+    function switchTab(tab) {
+      state.currentTab = tab;
+      // Remove active from ALL nav-tabs in both rows
+      document.querySelectorAll('#navTabs .nav-tab, #navSubTabs .nav-tab').forEach(el => el.classList.remove('active'));
+      const tabEl = document.querySelector(`[data-tab="${tab}"]`);
+      if (tabEl) tabEl.classList.add('active');
+      
+      switch (tab) {
+        case 'dictation': renderDictation(); break;
+        case 'listening': renderListening(); break;
+        case 'grammar': renderGrammar(); break;
+        case 'cloze': renderCloze(); break;
+        case 'reading': renderReading(); break;
+        case 'writing': renderWriting(); break;
+        case 'vocabdrill': renderVocabDrill(); break;
+        case 'wrongbook': renderWrongBook(); break;
+        case 'vocabbook': renderVocabBook(); break;
+      }
+    }
+
+    document.getElementById('navTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.nav-tab');
+      if (tab) switchTab(tab.dataset.tab);
+    });
+    document.getElementById('navSubTabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.nav-tab');
+      if (tab) switchTab(tab.dataset.tab);
+    });
+
+    // Year selector
+    document.getElementById('yearSelector').addEventListener('click', (e) => {
+      const btn = e.target.closest('.year-btn');
+      if (!btn) return;
+      state.currentYear = btn.dataset.year;
+      document.querySelectorAll('.year-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      // Reset answers for new year
+      state.grammarAnswers = {}; state.grammarSubmitted = {};
+      state.convAnswers = {}; state.convSubmitted = {};
+      state.readingAnswers = {}; state.readingSubmitted = {};
+      state.clozeAnswers = {}; state.clozeSubmitted = false;
+      state.listeningAnswers = {}; state.listeningSubmitted = false;
+      state.writingText = '';
+      // Reset audio state
+      audioState.playing = false; audioState.currentTime = 0; audioState.duration = 0;
+      updateStats();
+      switchTab(state.currentTab);
+    });
+
+    // Close vocab on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeVocabPopup();
+    });
+
+    // ==================== INIT ====================
+    function init() {
+      updateStats();
+      renderDictation();
+    }
+    init();
+  </script>
+</body>
+</html>
